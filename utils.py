@@ -1,7 +1,20 @@
 import os
+from fastapi import HTTPException
 import jwt
+import functools
 from configparser import ConfigParser
 
+def verify_jwt(func):
+    """Sleep 1 second before calling the function"""
+    @functools.wraps(func)
+    def wrapper_verify_jwt(*args, **kwargs):
+        token = kwargs['token']
+        jwt_verify_result = VerifyToken(token.credentials).verify()
+        if jwt_verify_result.get("status"):
+            print("JWT invalid")
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        return func(*args, **kwargs)
+    return wrapper_verify_jwt
 
 def set_up():
     """Sets up configuration for the app"""
