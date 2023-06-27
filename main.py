@@ -1,10 +1,9 @@
-"""main.py
-Python FastAPI Auth0 integration example
-"""
-
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, Response, status
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel
+from utils import VerifyToken
 
+token_auth_scheme = HTTPBearer()
 
 # Creates app instance
 app = FastAPI()
@@ -30,8 +29,14 @@ def hello_world() -> Message:
 
 
 @app.post("/")
-def create_policy(request: PolicyRequest) -> Message:
+def create_policy(request: PolicyRequest, response: Response, token: str = Depends(token_auth_scheme)) -> Message:
     """Create policy endpoint"""
+
+    result = VerifyToken(token.credentials).verify()
+    if result.get("status"):
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return result
+    
     # print request body
     print(request)
 

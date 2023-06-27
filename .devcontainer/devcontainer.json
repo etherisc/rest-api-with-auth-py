@@ -20,7 +20,8 @@
 		"vscode": {
 			"extensions": [
 				"GitHub.copilot-nightly",
-				"oderwat.indent-rainbow"
+				"oderwat.indent-rainbow",
+				"vikas.code-navigation"
 			]
 		}
 	},
