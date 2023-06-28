@@ -9,10 +9,10 @@ def verify_jwt(func):
     @functools.wraps(func)
     def wrapper_verify_jwt(*args, **kwargs):
         token = kwargs['token']
-        jwt_verify_result = VerifyToken(token.credentials).verify()
+        jwt_verify_result = TokenHelper(token.credentials).verify()
         if jwt_verify_result.get("status"):
             print("JWT invalid")
-            raise HTTPException(status_code=401, detail="Unauthorized")
+            raise HTTPException(status_code=401, detail=jwt_verify_result.get("message"))
         return func(*args, **kwargs)
     return wrapper_verify_jwt
 
@@ -35,7 +35,7 @@ def set_up():
     return config
 
 
-class VerifyToken():
+class TokenHelper():
     """Does all the token verification using PyJWT"""
 
     def __init__(self, token):
