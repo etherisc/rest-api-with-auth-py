@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, Response, status, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel
-from utils import verify_jwt
+from utils import verify_jwt_with_scope
 
 class PolicyRequest(BaseModel):
     name: str
@@ -27,7 +27,7 @@ def hello_world() -> Message:
 
 @app.post("/")
 # @verify_jwt
-@verify_jwt("write:policy")
+@verify_jwt_with_scope("write:policy")
 def create_policy(request: PolicyRequest, response: Response, token: str = Depends(token_auth_scheme)) -> Message:
     """Create policy endpoint"""
     print(request)

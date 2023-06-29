@@ -16,7 +16,7 @@ def verify_jwt(func):
         return func(*args, **kwargs)
     return wrapper_verify_jwt
 
-def verify_jwt(*expected_scopes):
+def verify_jwt_with_scope(*expected_scopes):
     def require_scope_actual(func):
         """Sleep 1 second before calling the function"""
         @functools.wraps(func)
