@@ -5,7 +5,7 @@ import functools
 from configparser import ConfigParser
 
 def verify_jwt(func):
-    """Sleep 1 second before calling the function"""
+    """verifies the JWT token is valid"""
     @functools.wraps(func)
     def wrapper_verify_jwt(*args, **kwargs):
         token = kwargs['token']
@@ -17,8 +17,8 @@ def verify_jwt(func):
     return wrapper_verify_jwt
 
 def verify_jwt_with_scope(*expected_scopes):
+    """verifies the JWT token is valid and has the required scopes"""
     def require_scope_actual(func):
-        """Sleep 1 second before calling the function"""
         @functools.wraps(func)
         def wrapper_require_scope(*args, **kwargs):
             token = kwargs['token']
@@ -63,7 +63,7 @@ class TokenHelper():
         self.jwks_client = jwt.PyJWKClient(jwks_url)
 
     def verify(self):
-        # This gets the 'kid' from the passed token
+        # Verify the JWT token and extract the payload
         try:
             self.signing_key = self.jwks_client.get_signing_key_from_jwt(
                 self.token
@@ -88,6 +88,7 @@ class TokenHelper():
         return payload
     
     def has_scopes(self, *expected_scopes):
+        """Checks if the token is valid (see verify) and has the required scopes"""
         payload = self.verify()
         scope = payload.get("scope", "")
         if len(expected_scopes) == 0:
