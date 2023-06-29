@@ -16,6 +16,21 @@ def verify_jwt(func):
         return func(*args, **kwargs)
     return wrapper_verify_jwt
 
+def verify_jwt(*expected_scopes):
+    def require_scope_actual(func):
+        """Sleep 1 second before calling the function"""
+        @functools.wraps(func)
+        def wrapper_require_scope(*args, **kwargs):
+            token = kwargs['token']
+            jwt_verify_result = TokenHelper(token.credentials).has_scopes(*expected_scopes)
+            if jwt_verify_result.get("status"):
+                print("scope invalid")
+                raise HTTPException(status_code=403, detail=jwt_verify_result.get("message"))
+            return func(*args, **kwargs)
+        return wrapper_require_scope
+    return require_scope_actual
+
+
 def set_up():
     """Sets up configuration for the app"""
 
@@ -71,4 +86,19 @@ class TokenHelper():
 
         print("JWT payload: %s" % payload)
         return payload
+    
+    def has_scopes(self, *expected_scopes):
+        payload = self.verify()
+        scope = payload.get("scope", "")
+        if len(expected_scopes) == 0:
+            return {}
+        if scope == "":
+            return {"status": "error", "message": "Invalid scope"}
+        token_scopes = scope.split(" ")
+        # print("Token scopes: %s" % token_scopes)
+        # print ("Expected scopes: %s" % expected_scopes)
+        for expected_scope in expected_scopes:
+            if expected_scope not in token_scopes:
+                return {"status": "error", "message": "Invalid scope"}
+        return {}
     

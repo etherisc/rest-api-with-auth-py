@@ -26,7 +26,8 @@ def hello_world() -> Message:
 
 
 @app.post("/")
-@verify_jwt
+# @verify_jwt
+@verify_jwt("write:policy")
 def create_policy(request: PolicyRequest, response: Response, token: str = Depends(token_auth_scheme)) -> Message:
     """Create policy endpoint"""
     print(request)
